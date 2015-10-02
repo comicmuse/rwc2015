@@ -38,9 +38,9 @@
     },
     "sdkVersion": "3",
     "shortName": "RWC 2015",
-    "uuid": "293d31bb-d20b-4e32-8803-00cace79c98d",
+    "uuid": "1a7c6318-20fa-480f-9970-4c98927e2d66",
     "versionCode": 1,
-    "versionLabel": "1.1",
+    "versionLabel": "1.2",
     "watchapp": {
         "hiddenApp": false,
         "watchface": false

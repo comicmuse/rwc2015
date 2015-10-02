@@ -91,9 +91,8 @@ function inplay(matchId) {
     },
     function(data) {
       //Store the team names for ease of reference
-      team1 = data.match.teams[0];
-      team2 = data.match.teams[1];
-      
+      team1 = data.match.teams[0].abbreviation;
+      team2 = data.match.teams[1].abbreviation;
       
       
       //Cache the player lists for later use with scoring
@@ -116,6 +115,11 @@ function inplay(matchId) {
         }
       }
       
+      var text = data.match.teams[0].abbreviation + ' ' + data.match.scores[0] + '-' + data.match.scores[1] + ' ' + data.match.teams[1].abbreviation + '\n';
+      text = text + data.match.clock.label;
+      card.body (text);
+
+      
       //Main In-Play Loop
       
       var pointlessVar = setInterval (inplayloop, 60000);
@@ -131,7 +135,7 @@ function inplay(matchId) {
             text = 'FT:';
             clearInterval(pointlessVar);
           }
-          text = text + team1 + ' ' + data.match.scores[0] + '-' + data.match.scores[1] + ' ' + team2 + '\n';
+          text = text + data.match.teams[0].abbreviation + ' ' + data.match.scores[0] + '-' + data.match.scores[1] + ' ' + data.match.teams[1].abbreviation + '\n';
           text = text + data.match.clock.label;
           card.body (text);
         },
