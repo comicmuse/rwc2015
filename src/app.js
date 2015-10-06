@@ -1,11 +1,13 @@
 /**
- * 
+ * Pebble RWC 2015 app by Colm Linehan
+ * v1.3
  */
 
 var UI = require('ui');
 var ajax = require('ajax');
+var Vector2 = require('vector2');
 
-console.log ('Starting 1');
+console.log ('Starting rwc2015 at ' + new Date().toString());
 
 // Create a Card with title and subtitle
 var card = new UI.Card({
@@ -18,20 +20,16 @@ card.on('click', 'select', function ()
          reloadfrontpage();       
        }
 );
+card.subtitle("Loading...");
 
 // Display the Card
 card.show();
-
-//define the inplay window to be used later
-var window = new UI.Window({fullscreen: true});
-
 
 reloadfrontpage();
 
 
 function reloadfrontpage () {
 // Get the schedule of matches
-  card.subtitle("Refreshing...");
   var URL = 'http://cmsapi.pulselive.com/rugby/event/1238/schedule?language=en';
 ajax(
   {
@@ -43,7 +41,6 @@ ajax(
     console.log('Successfully fetched match schedule');
     var text ='';
     var i=0;
-    
   
     while (i<data.matches.length && data.matches[i].status == 'C')
       {
@@ -52,31 +49,30 @@ ajax(
     //There is no current match
     if (data.matches[i].status == 'U')
       {
-        text = '\nFT:' + data.matches[i-1].teams[0].abbreviation + ' ' + data.matches[i-1].scores[0] + '-' +  data.matches[i-1].scores[1] +' ' + data.matches[i-1].teams[1].abbreviation + '\n\n';
-        text = text + 'Next: ' + data.matches[i].teams[0].abbreviation + ' v ' + data.matches[i].teams[1].abbreviation + '\n';
-        text = text + data.matches[i].time.label;  
+        notinplay(data.matches[i-1], data.matches[i]);
       }
-    //We're at half time
-    else if (data.matches[i].status=='LHT') 
+    //#TODO reserved for future half-time development
+    /*else if () 
       {
         halftime(data.matches[i].matchId);
-      }
-    else if (data.matches[i].status=='L1' || data.matches[i].status == 'L2')
+      }*/
+    else if (data.matches[i].status=='LHT' || data.matches[i].status=='L1' || data.matches[i].status == 'L2')
       {
         inplay(data.matches[i].matchId);
       }
     else if (data.matches[i].status =='LT1')
       {
-        text = '\nNext: ' + data.matches[i].teams[0].abbreviation + ' v ' + data.matches[i].teams[1].abbreviation + '\n';
+        //#TODO break this out somewhere sensible
+        text = '\nComing Up: ' + data.matches[i].teams[0].abbreviation + ' v ' + data.matches[i].teams[1].abbreviation + '\n';
         text = text+ 'Select to refresh';
       }
     else
       {
+        //#TODO proper error handling
         text = "Unexpected Error.";
       }
     card.subtitle('');
-    card.body(text);    
-    
+    card.body(text); 
   },
   function(error) {
     // Failure!
@@ -86,16 +82,12 @@ ajax(
 );
 }
 
-function halftime(matchId) {
-  //put some code here
-}
-
 function inplay(matchId) {
+  var window = new UI.Window({fullscreen: true});
   //Set up some variables
   var team1, team2;
   var playerlist = new Array();
   //Set up the display
-  var Vector2 = require('vector2');
   
   var scorelayer = new UI.Text ({
     position: new Vector2(0,0),
@@ -263,6 +255,7 @@ function inplay(matchId) {
           if (data.match.status=='C') {
             window.hide();
             card.show();
+            //Ignore the error. It's a cloudpebble issue
             clearInterval(pointlessvar);
             console.log ('hopefully we have cleared the interval');
             return;
@@ -285,4 +278,35 @@ function inplay(matchId) {
   );
   
   
+}
+
+function notinplay(match1, match2) {
+  var window = new UI.Window({fullscreen: false});
+
+  var lastgamelayer = new UI.Text ({
+    position: new Vector2(0,0),
+    size: new Vector2(144, 75),
+    font: 'gothic-24-bold',
+    text: '\n' + match1.teams[0].abbreviation + ' ' + match1.scores[0] + '-' + match1.scores[1] +' ' + match1.teams[1].abbreviation,
+    textAlign: 'center',
+    backgroundColor: 'white',
+    color: 'black'
+  });
+  
+  var nextgamelayer = new UI.Text ({
+    position: new Vector2(0,75),
+    size: new Vector2(144, 75),
+    font: 'gothic-24',
+    text: 'Next: ' + match2.teams[0].abbreviation + ' v ' + match2.teams[1].abbreviation + '\n' + match2.time.label,
+    textAlign: 'center',
+    backgroundColor: 'black',
+    color: 'white'    
+  });
+  
+  window.add(lastgamelayer);
+  window.add(nextgamelayer);
+  console.log('set up schedule window');
+  card.hide();
+  window.show();
+  console.log('showing schedule window');  
 }
