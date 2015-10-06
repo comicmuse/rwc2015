@@ -6,8 +6,24 @@
 var UI = require('ui');
 var ajax = require('ajax');
 var Vector2 = require('vector2');
+//Identify platform
+var current_watch;
+if(Pebble.getActiveWatchInfo) {
+  try {
+    current_watch = Pebble.getActiveWatchInfo();
+  } catch(err) {
+    current_watch = {
+      platform: "basalt",
+    };
+  }
+} else {
+  current_watch = {
+    platform: "aplite",
+  };
+}
 
 console.log ('Starting rwc2015 at ' + new Date().toString());
+console.log('current watch platform:' + current_watch.platform);
 
 // Create a Card with title and subtitle
 var card = new UI.Card({
@@ -114,6 +130,16 @@ function inplay(matchId) {
     text: '',
     textAlign: 'left',
   });  
+
+  //override for colour support
+  if (current_watch.platform == 'basalt') {
+    scorelayer.backgroundColor('islamicGreen');
+    scorelayer.color('white');
+    timelayer.backgroundColor('islamicGreen');
+    timelayer.color('white');
+    eventslayer.backgroundColor('blue');
+    eventslayer.color('white');
+  }
   
   window.add(scorelayer);
   window.add(timelayer);
@@ -285,7 +311,7 @@ function notinplay(match1, match2) {
 
   var lastgamelayer = new UI.Text ({
     position: new Vector2(0,0),
-    size: new Vector2(144, 75),
+    size: new Vector2(144, 65),
     font: 'gothic-24-bold',
     text: '\n' + match1.teams[0].abbreviation + ' ' + match1.scores[0] + '-' + match1.scores[1] +' ' + match1.teams[1].abbreviation,
     textAlign: 'center',
@@ -294,14 +320,21 @@ function notinplay(match1, match2) {
   });
   
   var nextgamelayer = new UI.Text ({
-    position: new Vector2(0,75),
-    size: new Vector2(144, 75),
-    font: 'gothic-24',
+    position: new Vector2(0,65),
+    size: new Vector2(144, 100),
+    font: 'gothic-24-bold',
     text: 'Next: ' + match2.teams[0].abbreviation + ' v ' + match2.teams[1].abbreviation + '\n' + match2.time.label,
     textAlign: 'center',
     backgroundColor: 'black',
     color: 'white'    
   });
+  //override for colour support
+  if (current_watch.platform == 'basalt') {
+    lastgamelayer.backgroundColor('islamicGreen');
+    lastgamelayer.color('white');
+    nextgamelayer.backgroundColor('blue');
+    nextgamelayer.color('white');
+  }
   
   window.add(lastgamelayer);
   window.add(nextgamelayer);
