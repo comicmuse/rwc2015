@@ -125,7 +125,7 @@ function inplay(matchId) {
   });
   var eventslayer = new UI.Text ({
     position: new Vector2(0,50),
-    size: new Vector2(144, 94),
+    size: new Vector2(144, 144),
     font: 'gothic-14',
     text: '',
     textAlign: 'left',
@@ -155,8 +155,13 @@ function inplay(matchId) {
   
   function updateevents(data){
     //extract all the events from the game, put them in an array, sort it backwards, and return it. 
+    console.log ('enter updateevents');
     var eventsArray = new Array();
     var eventTimesArray = new Array();
+    if (data !== undefined) {
+      console.log('data is fine');
+    if (data.teams !== undefined) {
+      console.log('teams are fine');
     for (var team =0 ; team < data.teams.length; team++ ) {
       if (data.teams[team].scoring.Try !== undefined) {
         for (var atry=0; atry < data.teams[team].scoring.Try.length; atry++) {
@@ -183,7 +188,7 @@ function inplay(matchId) {
         }
       }
       
-      if (data.teams[team].disciplinary !== undefined) {
+      if (data.teams[team].disciplinary.YC !== undefined) {
         for (var yc=0; yc < data.teams[team].disciplinary.YC.length; yc++) {
           eventsArray[data.teams[team].disciplinary.YC[yc].time.secs] =  data.teams[team].disciplinary.YC[yc].time.label + ': Bin - ' + playerlist[data.teams[team].disciplinary.YC[yc].playerId];
           eventTimesArray.push(data.teams[team].disciplinary.YC[yc].time.secs);
@@ -196,13 +201,15 @@ function inplay(matchId) {
         }
       }
     }
+    } }
+    console.log('constructed arrays');
     //ok, now sort the event times
     eventTimesArray.sort(function (a, b) {return b-a;}); 
     console.log('The eventTimesArray:' + eventTimesArray.toString());
     
     //construct a string of the events
     var text = '';
-    for (var i = 0; i < eventTimesArray.length && i<8; i++) {
+    for (var i = 0; i < eventTimesArray.length && i<10; i++) {
       text = text + eventsArray[eventTimesArray[i]] + '\n';
     }
     console.log(text);
