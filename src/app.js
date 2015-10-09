@@ -6,6 +6,9 @@
 var UI = require('ui');
 var ajax = require('ajax');
 var Vector2 = require('vector2');
+var Vibe = require('ui/vibe');
+
+
 //Identify platform
 var current_watch;
 if(Pebble.getActiveWatchInfo) {
@@ -209,7 +212,7 @@ function inplay(matchId) {
     
     //construct a string of the events
     var text = '';
-    for (var i = 0; i < eventTimesArray.length && i<10; i++) {
+    for (var i = 0; i < eventTimesArray.length && i<8; i++) {
       text = text + eventsArray[eventTimesArray[i]] + '\n';
     }
     console.log(text);
@@ -229,6 +232,7 @@ function inplay(matchId) {
       if (newscorelayer !== lastscorelayer) {
         scorelayer.text(newscorelayer);
         lastscorelayer=newscorelayer;
+        Vibe.vibrate('short');
         console.log ('updated scorelayer');
       }
       if (neweventslayer !== lasteventslayer) {
@@ -286,11 +290,12 @@ function inplay(matchId) {
         },
         function (data){
           if (data.match.status=='C') {
+            clearInterval(pointlessvar);
             window.hide();
             card.show();
-            //Ignore the error. It's a cloudpebble issue
-            clearInterval(pointlessvar);
             console.log ('hopefully we have cleared the interval');
+            reloadfrontpage();
+            //Ignore the error. It's a cloudpebble issue
             return;
           } 
           console.log('inplay loop updated json');
