@@ -10,6 +10,7 @@
         "media": [
             {
                 "file": "images/menu_icon.png",
+                "menuIcon": true,
                 "name": "IMAGE_MENU_ICON",
                 "type": "png"
             },
@@ -27,12 +28,6 @@
                 "file": "fonts/UbuntuMono-Regular.ttf",
                 "name": "MONO_FONT_14",
                 "type": "font"
-            },
-            {
-                "file": "images/rwclogo.png",
-                "menuIcon": true,
-                "name": "IMAGES_RWCLOGO_PNG",
-                "type": "png"
             }
         ]
     },
@@ -40,7 +35,7 @@
     "shortName": "RWC 2015",
     "uuid": "1a7c6318-20fa-480f-9970-4c98927e2d66",
     "versionCode": 1,
-    "versionLabel": "1.5",
+    "versionLabel": "1.6",
     "watchapp": {
         "hiddenApp": false,
         "watchface": false

@@ -1,6 +1,7 @@
 /**
  * Pebble RWC 2015 app by Colm Linehan
  * v1.3
+ *
  */
 
 var UI = require('ui');
@@ -81,9 +82,7 @@ ajax(
       }
     else if (data.matches[i].status =='LT1')
       {
-        //#TODO break this out somewhere sensible
-        text = '\nComing Up: ' + data.matches[i].teams[0].abbreviation + ' v ' + data.matches[i].teams[1].abbreviation + '\n';
-        text = text+ 'Select to refresh';
+        comingup(data, data.matches[i].matchId, i);
       }
     else
       {
@@ -290,12 +289,13 @@ function inplay(matchId) {
         },
         function (data){
           if (data.match.status=='C') {
+            //Ignore the error. It's a cloudpebble issue
             clearInterval(pointlessvar);
             window.hide();
-            card.show();
+            //Switch back to the notinplay window
+            notinplay(matchId, matchId+1);
             console.log ('hopefully we have cleared the interval');
             reloadfrontpage();
-            //Ignore the error. It's a cloudpebble issue
             return;
           } 
           console.log('inplay loop updated json');
@@ -354,4 +354,52 @@ function notinplay(match1, match2) {
   card.hide();
   window.show();
   console.log('showing schedule window');  
+}
+
+function comingup(data, matchId, matchIndex) {
+  var window = new UI.Window({fullscreen: false});
+
+  var cominguplayer = new UI.Text ({
+    position: new Vector2(0,0),
+    size: new Vector2(144, 168),
+    font: 'gothic-24-bold',
+    textAlign: 'center',
+    backgroundColor: 'white',
+    color: 'black'
+  });
+  //override for colour support
+  if (current_watch.platform == 'basalt') {
+    cominguplayer.backgroundColor('islamicGreen');
+    cominguplayer.color('white');
+  }
+  cominguplayer.text('\nComing Up:\n' + data.matches[matchIndex].teams[0].abbreviation + ' v ' + data.matches[matchIndex].teams[1].abbreviation);
+  window.add(cominguplayer);
+  card.hide();
+  window.show();  
+  
+  var timeoutvar = setInterval (cominguploop, 60000*3);
+  
+  function cominguploop ()
+  {
+    var URL = 'http://cmsapi.pulselive.com/rugby/match/' + matchId + '/';
+    
+    ajax(
+        {
+          url: URL,
+          type: 'json'
+        },
+      function (data) {
+        if (data !== undefined && (data.status == 'L1' || data.status == 'L2')) {
+          clearInterval (timeoutvar);
+          window.hide();
+          inplay(matchId);
+          return;
+        }
+      },
+      function (error) {
+        console.log('Failed fetching match detail from the cominguploop' + error);
+      });
+      
+  }
+  
 }
